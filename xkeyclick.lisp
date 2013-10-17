@@ -45,8 +45,8 @@
     (setf (height tree) height)))
 
 
-(defparameter *keys* #(38 39 40 41 44 45 46 47))
-(defparameter *keys-asdf* "asdfjkl;")
+(defvar *keys* #(38 39 40 41 44 45 46 47))
+(defvar *keys-asdf*)
 (defvar *canvas*)
 (defvar *gcontext*)
 
@@ -73,7 +73,8 @@
     (xlib:grab-keyboard root)
     (xlib:map-window *canvas*)
     (unwind-protect
-         (progn (let ((tree (create-octotree (xlib:screen-width screen) (xlib:screen-height screen))))
+         (progn (let ((tree (create-octotree (xlib:screen-width screen) (xlib:screen-height screen)))
+                      (*keys-asdf* (map 'vector (lambda (code) (xlib:keycode->character display code 0)) *keys*)))
                   (draw-octotree tree)
                   (xlib:display-force-output display)
                   (handler-case
