@@ -3,6 +3,11 @@
 
 (in-package :xkeyclick)
 
+(defvar *keys* #(38 39 40 41 44 45 46 47))
+(defvar *keys-asdf*)
+(defvar *canvas*)
+(defvar *gcontext*)
+
 (defclass octotree ()
   ((xpos :accessor xpos
          :initarg :xpos
@@ -45,12 +50,21 @@
     (setf (height tree) height)))
 
 
-(defvar *keys* #(38 39 40 41 44 45 46 47))
-(defvar *keys-asdf*)
-(defvar *canvas*)
-(defvar *gcontext*)
+(defun draw-window (char x y width height)
+  (xlib:draw-rectangle *canvas* *gcontext* x y width height)
+  (xlib:draw-glyph *canvas* *gcontext*
+                   (+ x (truncate (/ width 2)))
+                   (+ y (truncate (/ height 2)))
+                   char))
 
-(defun start ()
+(defun draw-octotree (tree)
+  (loop for selection in (selections tree)
+     for key across *keys-asdf*
+     do (destructuring-bind (x y width height) selection
+          (draw-window key x y width height))))
+
+
+(defun start (&rest args)
   (let* ((display (xlib:open-default-display))
          (screen (first (xlib:display-roots display)))
          (root (xlib:screen-root screen))
@@ -103,15 +117,3 @@
       (xlib:destroy-window *canvas*)
       (xlib:close-display display))))
 
-(defun draw-window (char x y width height)
-  (xlib:draw-rectangle *canvas* *gcontext* x y width height)
-  (xlib:draw-glyph *canvas* *gcontext*
-                   (+ x (truncate (/ width 2)))
-                   (+ y (truncate (/ height 2)))
-                   char))
-
-(defun draw-octotree (tree)
-  (loop for selection in (selections tree)
-     for key across *keys-asdf*
-     do (destructuring-bind (x y width height) selection
-          (draw-window key x y width height))))
