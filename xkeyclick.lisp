@@ -45,7 +45,8 @@
     (setf (height tree) height)))
 
 
-(defparameter *keys* "uiaenrtd")
+(defparameter *keys* #(38 39 40 41 44 45 46 47))
+(defparameter *keys-asdf* "asdfjkl;")
 (defvar *canvas*)
 (defvar *gcontext*)
 
@@ -78,15 +79,12 @@
                   (handler-case
                       (xlib:process-event display :handler
                                           (lambda (&rest args)
-                                            (print args)
                                             (when (eq (getf args :event-key) :key-press)
-                                              (let ((key (xlib:keycode->character display
-                                                                                  (getf args :code)
-                                                                                  (getf args :state))))
+                                              (let ((key (getf args :code)))
                                                 (case key
                                                   ((nil) t)
                                                   (t (when (find key *keys*)
-                                                       (select tree (print (position key *keys*)))
+                                                       (select tree (position key *keys*))
                                                        (with-slots (xpos ypos width height) tree
                                                          (if (and (< width 30)
                                                                   (< height 20))
@@ -120,6 +118,6 @@
 
 (defun draw-octotree (tree)
   (loop for selection in (selections tree)
-     for key across *keys*
+     for key across *keys-asdf*
      do (destructuring-bind (x y width height) selection
           (draw-window key x y width height))))
