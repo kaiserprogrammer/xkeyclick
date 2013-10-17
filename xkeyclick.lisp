@@ -73,12 +73,13 @@
          (*canvas* (xlib:create-window :x 0 :y 0 :width (xlib:screen-width screen) :height (xlib:screen-height screen)
                                        :parent root
                                        :background :none
-                                       :event-mask (make-event-mask :button-press)
+                                       :event-mask (make-event-mask :key-press)
                                        :class :input-output))
          (*gcontext* (xlib:create-gcontext :drawable *canvas* :foreground blue :subwindow-mode :include-inferiors)))
     (setf (xlib:window-override-redirect *canvas*) :on)
-    (xlib:grab-keyboard root)
     (xlib:map-window *canvas*)
+    (loop
+       until (eq :success (xlib:grab-keyboard root :owner-p t)))
     (unwind-protect
          (progn (let ((tree (create-octotree (xlib:screen-width screen) (xlib:screen-height screen)))
                       (*keys-asdf* (map 'vector (lambda (code) (xlib:keycode->character display code 0)) *keys*)))
