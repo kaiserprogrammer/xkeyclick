@@ -112,7 +112,11 @@
                                                                (draw-octotree tree)
                                                                (display-force-output display)
                                                                nil))))))))))
-                    (t (e) (print e)))))
+                    (t (e) (with-open-file (out "/home/coder/.xkeyclick_errors"
+                                                :direction :output
+                                                :if-exists :append
+                                                :if-does-not-exist :create)
+                             (print e out))))))
       (xlib:free-colors colormap (list blue))
       (xlib:free-gcontext *gcontext*)
       (xlib:destroy-window *canvas*)
