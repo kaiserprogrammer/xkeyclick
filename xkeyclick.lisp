@@ -63,13 +63,6 @@
                                        :class :input-output))
          (*gcontext* (xlib:create-gcontext :drawable *canvas* :foreground blue :subwindow-mode :include-inferiors)))
     (setf (xlib:window-override-redirect *canvas*) :on)
-    (xlib:change-property *canvas*
-                          :wm_name
-                          "Pick two numbers"
-                          :string
-                          8
-                          :transform #'char-code)
-
     (xlib:grab-keyboard root)
     (xlib:map-window *canvas*)
     (unwind-protect
