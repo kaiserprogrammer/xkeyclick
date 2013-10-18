@@ -65,6 +65,7 @@
 
 
 (defun start (&rest args)
+  (declare (ignore args))
   (let* ((display (xlib:open-default-display))
          (screen (first (xlib:display-roots display)))
          (root (xlib:screen-root screen))
