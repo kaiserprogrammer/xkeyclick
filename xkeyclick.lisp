@@ -28,7 +28,7 @@
     (let ((htimes 1)
           (wtimes 8))
       (with-slots (xpos ypos width height) octotree
-        (when (< width 30)
+        (when (< width height)
           (rotatef htimes wtimes))
         (let ((new-width (truncate (/ width wtimes)))
               (new-height (truncate (/ height htimes))))
