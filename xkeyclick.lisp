@@ -90,28 +90,28 @@
                                           (lambda (&rest args)
                                             (when (eq (getf args :event-key) :key-press)
                                               (let ((key (getf args :code)))
-                                                (case key
-                                                  ((nil) t)
-                                                  (t (when (find key *keys*)
-                                                       (select tree (position key *keys*))
-                                                       (with-slots (xpos ypos width height) tree
-                                                         (if (and (< width 30)
-                                                                  (< height 20))
-                                                             (progn
-                                                               (unmap-window *canvas*)
-                                                               (xtest:fake-motion-event display xpos ypos)
-                                                               (xtest:fake-button-event display 1 t)
-                                                               (display-finish-output display)
-                                                               (xtest:fake-button-event display 1 nil :delay 1)
-                                                               (display-finish-output display)
-                                                               t)
-                                                             (progn
-                                                               (unmap-window *canvas*)
-                                                               (display-finish-output display)
-                                                               (map-window *canvas*)
-                                                               (draw-octotree tree)
-                                                               (display-force-output display)
-                                                               nil))))))))))
+                                                (if (eq key 9)
+                                                    t
+                                                    (when (find key *keys*)
+                                                      (select tree (position key *keys*))
+                                                      (with-slots (xpos ypos width height) tree
+                                                        (if (and (< width 30)
+                                                                 (< height 20))
+                                                            (progn
+                                                              (unmap-window *canvas*)
+                                                              (xtest:fake-motion-event display xpos ypos)
+                                                              (xtest:fake-button-event display 1 t)
+                                                              (display-finish-output display)
+                                                              (xtest:fake-button-event display 1 nil :delay 1)
+                                                              (display-finish-output display)
+                                                              t)
+                                                            (progn
+                                                              (unmap-window *canvas*)
+                                                              (display-finish-output display)
+                                                              (map-window *canvas*)
+                                                              (draw-octotree tree)
+                                                              (display-force-output display)
+                                                              nil)))))))))
                     (t (e) (with-open-file (out "/home/coder/.xkeyclick_errors"
                                                 :direction :output
                                                 :if-exists :append
