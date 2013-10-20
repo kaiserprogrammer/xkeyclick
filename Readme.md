@@ -13,5 +13,6 @@ your mouseclick is precise enough to be executed.
 ## Build
 
 ```
-buildapp --output xkeyclick --load "quicklisp/setup.lisp" --load-system clx --load-system lisp-unit --load "xkeyclick.lisp" --entry "xkeyclick:start"
+buildapp --output xkeyclick --load "quicklisp/setup.lisp"
+--load-system clx --load-system lisp-unit --load-system xkeyboard --load "xkeyclick.lisp" --entry "xkeyclick:start"
 ```
