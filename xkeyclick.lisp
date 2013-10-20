@@ -78,6 +78,7 @@
                                        :class :input-output))
          (*gcontext* (xlib:create-gcontext :drawable *canvas* :foreground blue :subwindow-mode :include-inferiors)))
     (setf (xlib:window-override-redirect *canvas*) :on)
+    (xlib:enable-xkeyboard display)
     (xlib:map-window *canvas*)
     (loop
        until (eq :success (xlib:grab-keyboard root :owner-p t)))
@@ -90,29 +91,44 @@
                       (xlib:process-event display :handler
                                           (lambda (&rest args)
                                             (when (eq (getf args :event-key) :key-press)
-                                              (let ((key (getf args :code)))
+                                              (let* ((key (getf args :code))
+                                                     (char (xlib:xkb/keysym->character
+                                                            (xlib::keyevent->keysym
+                                                             (xlib::transform-xkb-keymap-to-client-mapping
+                                                              (xlib::get-map display xlib::+use-core-kbd+
+                                                                             (logior xlib::+KeyTypes+
+                                                                                     xlib::+KeySyms+)))
+                                                             key
+                                                             (getf args :state))
+                                                            xlib:+xkbkeysymdb+)))
                                                 (if (eq key 9)
                                                     t
-                                                    (when (find key *keys*)
-                                                      (select tree (position key *keys*))
-                                                      (with-slots (xpos ypos width height) tree
-                                                        (if (and (< width 30)
-                                                                 (< height 20))
-                                                            (progn
-                                                              (unmap-window *canvas*)
-                                                              (xtest:fake-motion-event display xpos ypos)
-                                                              (xtest:fake-button-event display 1 t)
-                                                              (display-finish-output display)
-                                                              (xtest:fake-button-event display 1 nil :delay 1)
-                                                              (display-finish-output display)
-                                                              t)
-                                                            (progn
-                                                              (unmap-window *canvas*)
-                                                              (display-finish-output display)
-                                                              (map-window *canvas*)
-                                                              (draw-octotree tree)
-                                                              (display-force-output display)
-                                                              nil)))))))))
+                                                    (if (find char '(#\Esc))
+                                                        t
+                                                        (when (find key *keys*)
+                                                          (select tree (position key *keys*))
+                                                          (with-slots (xpos ypos width height) tree
+                                                            (if (and (< width 30)
+                                                                     (< height 20))
+                                                                (progn
+                                                                  (unmap-window *canvas*)
+                                                                  (xtest:fake-motion-event display xpos ypos)
+                                                                  (xtest:fake-button-event display 1 t)
+                                                                  (display-finish-output display)
+                                                                  (xtest:fake-button-event display 1 nil :delay 1)
+                                                                  (display-finish-output display)
+                                                                  t)
+                                                                (progn
+                                                                  (unmap-window *canvas*)
+                                                                  (clear-area root :width (screen-width screen)
+                                                                              :height (screen-height screen)
+                                                                              :exposures-p t)
+                                                                  (display-finish-output display)
+                                                                  (sleep 0.001)
+                                                                  (map-window *canvas*)
+                                                                  (draw-octotree tree)
+                                                                  (display-force-output display)
+                                                                  nil))))))))))
                     (t (e) (with-open-file (out "/home/coder/.xkeyclick_errors"
                                                 :direction :output
                                                 :if-exists :append
