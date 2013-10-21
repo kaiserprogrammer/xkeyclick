@@ -124,7 +124,7 @@
                                                                               :height (screen-height screen)
                                                                               :exposures-p t)
                                                                   (display-finish-output display)
-                                                                  (sleep 0.001)
+                                                                  (sleep 0.01)
                                                                   (map-window *canvas*)
                                                                   (draw-octotree tree)
                                                                   (display-force-output display)
