@@ -63,6 +63,15 @@
      do (destructuring-bind (x y width height) selection
           (draw-window key x y width height))))
 
+(defun click (display xpos ypos)
+  (progn
+    (unmap-window *canvas*)
+    (xtest:fake-motion-event display xpos ypos)
+    (xtest:fake-button-event display 1 t)
+    (display-finish-output display)
+    (xtest:fake-button-event display 1 nil :delay 1)
+    (display-finish-output display)
+    t))
 
 (defun start (&rest args)
   (declare (ignore args))
@@ -105,30 +114,26 @@
                                                     t
                                                     (if (find char '(#\Esc))
                                                         t
-                                                        (when (find key *keys*)
-                                                          (select tree (position key *keys*))
-                                                          (with-slots (xpos ypos width height) tree
-                                                            (if (and (< width 30)
-                                                                     (< height 20))
-                                                                (progn
-                                                                  (unmap-window *canvas*)
-                                                                  (xtest:fake-motion-event display xpos ypos)
-                                                                  (xtest:fake-button-event display 1 t)
-                                                                  (display-finish-output display)
-                                                                  (xtest:fake-button-event display 1 nil :delay 1)
-                                                                  (display-finish-output display)
-                                                                  t)
-                                                                (progn
-                                                                  (unmap-window *canvas*)
-                                                                  (clear-area root :width (screen-width screen)
-                                                                              :height (screen-height screen)
-                                                                              :exposures-p t)
-                                                                  (display-finish-output display)
-                                                                  (sleep 0.01)
-                                                                  (map-window *canvas*)
-                                                                  (draw-octotree tree)
-                                                                  (display-force-output display)
-                                                                  nil))))))))))
+                                                        (if (find char '(#\Space))
+                                                            (with-slots (xpos ypos) tree
+                                                              (click display xpos ypos))
+                                                            (when (find key *keys*)
+                                                              (select tree (position key *keys*))
+                                                              (with-slots (xpos ypos width height) tree
+                                                                (if (and (< width 10)
+                                                                         (< height 10))
+                                                                    (click display xpos ypos)
+                                                                    (progn
+                                                                      (unmap-window *canvas*)
+                                                                      (clear-area root :width (screen-width screen)
+                                                                                  :height (screen-height screen)
+                                                                                  :exposures-p t)
+                                                                      (display-finish-output display)
+                                                                      (sleep 0.01)
+                                                                      (map-window *canvas*)
+                                                                      (draw-octotree tree)
+                                                                      (display-force-output display)
+                                                                      nil)))))))))))
                     (t (e) (with-open-file (out "/home/coder/.xkeyclick_errors"
                                                 :direction :output
                                                 :if-exists :append
