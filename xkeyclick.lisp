@@ -1,5 +1,5 @@
 (defpackage :xkeyclick
-  (:use :cl :xlib :lisp-unit))
+  (:use :cl :xlib))
 
 (in-package :xkeyclick)
 
